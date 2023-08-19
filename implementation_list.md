@@ -25,8 +25,8 @@
 ### 8. Recurring Tasks
 - Set up tasks that recur on a regular basis (daily, weekly, etc.).
 
-~~### 9. Priority Levels Customization~~
-~~- Define custom priority levels and corresponding colors.~~
+### 9. ~~Priority Levels Customization~~
+- ~~Define custom priority levels and corresponding colors.~~
 
 ### 10. Command Autocompletion
 - Implement command-line autocompletion for functions.
