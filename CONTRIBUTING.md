@@ -19,6 +19,6 @@ Please follow the existing coding style and conventions. Add comments to your co
 
 ## License
 
-By contributing to this project, you agree that your contributions will be licensed under the same terms as the original project (see LICENSE.txt).
+By contributing to this project, you agree that your contributions will be licensed under the same terms as the original project (see LICENSE.md).
 
 Thank you for your interest in contributing!
