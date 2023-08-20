@@ -1,14 +1,6 @@
 # Default file path for the to-do list
 $script:defaultFilePath = Join-Path $env:USERPROFILE 'hyperfocus_list.txt'
 
-# Initialize the hyperFocusTasks list as an empty ArrayList if the default file does not exist
-$script:hyperFocusTasks = if (Test-Path -Path $script:defaultFilePath) {
-    Import-HyperFocusTasks $script:defaultFilePath
-}
-else {
-    New-Object System.Collections.ArrayList
-}
-
 <#
 .SYNOPSIS
     Adds a HyperFocus task.
