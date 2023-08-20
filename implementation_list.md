@@ -30,3 +30,6 @@
 
 ### 10. Command Autocompletion
 - Implement command-line autocompletion for functions.
+
+### 11. Set Windows Alarm
+- Use HyperFocus to set alarms to keep on track of each task.
