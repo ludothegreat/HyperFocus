@@ -259,7 +259,6 @@ function Update-HyperFocusStatus {
     }
 }
 
-
 # Default file path for the to-do list
 $script:defaultFilePath = Join-Path $env:USERPROFILE 'hyperfocus_list.txt'
 
