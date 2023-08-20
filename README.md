@@ -1,3 +1,4 @@
+![HyperFocus Logo](logo.png)
 # HyperFocus Task Management
 
 A PowerShell script to manage tasks using a "HyperFocus" system. Keep track of tasks, priorities, due dates, and statuses.
