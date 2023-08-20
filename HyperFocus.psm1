@@ -4,7 +4,8 @@ $script:defaultFilePath = Join-Path $env:USERPROFILE 'hyperfocus_list.txt'
 # Initialize the hyperFocusTasks list as an empty ArrayList if the default file does not exist
 $script:hyperFocusTasks = if (Test-Path -Path $script:defaultFilePath) {
     Import-HyperFocusTasks $script:defaultFilePath
-} else {
+}
+else {
     New-Object System.Collections.ArrayList
 }
 
@@ -22,26 +23,22 @@ $script:hyperFocusTasks = if (Test-Path -Path $script:defaultFilePath) {
 .PARAMETER status
     The status of the task. Default is 'Not Started'.
 #>
+# Function to add a single HyperFocus task
 function Add-HyperFocusTask {
-    [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
         [string]$item,
-
         [ValidateSet('High', 'Medium', 'Low')]
-        [string]$priority = 'Medium', 
-
-        [string]$dueDate = $null,      
-
+        [string]$priority = 'Medium',
+        [string]$dueDate = $null,
         [ValidateSet('Not Started', 'In Progress', 'On Hold', 'Completed', 'Cancelled')]
-        [string]$status = 'Not Started' 
+        [string]$status = 'Not Started'
     )
 
     $hyperfocus = New-Object PSObject -Property @{
-        'Item' = $item
+        'Item'     = $item
         'Priority' = $priority
-        'DueDate' = $dueDate
-        'Status' = $status
+        'DueDate'  = $dueDate
+        'Status'   = $status
     }
     $script:hyperFocusTasks.Add($hyperfocus) | Out-Null
     Export-HyperFocusTasks $script:defaultFilePath 
@@ -61,28 +58,24 @@ function Add-HyperFocusTask {
 .PARAMETER status
     The status of the tasks. Default is 'Not Started'.
 #>
+# Function to add multiple HyperFocus tasks
 function Add-HyperFocusTasks {
-    [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
         [string[]]$items,
-
         [ValidateSet('High', 'Medium', 'Low')]
         [string]$priority = 'Medium',
-
-        [string]$dueDate = $null,      
-
+        [string]$dueDate = $null,
         [ValidateSet('Not Started', 'In Progress', 'On Hold', 'Completed', 'Cancelled')]
-        [string]$status = 'Not Started' 
+        [string]$status = 'Not Started'
     )
 
     # Create and add HyperFocus tasks for each item
     $items | ForEach-Object {
         $hyperfocus = New-Object PSObject -Property @{
-            'Item' = $_
+            'Item'     = $_
             'Priority' = $priority
-            'DueDate' = $dueDate
-            'Status' = $status
+            'DueDate'  = $dueDate
+            'Status'   = $status
         }
         $script:hyperFocusTasks.Add($hyperfocus) | Out-Null
     }
@@ -91,21 +84,45 @@ function Add-HyperFocusTasks {
 
 <#
 .SYNOPSIS
-    Removes a HyperFocus task by index.
+    Removes a HyperFocus task by index or removes all completed tasks.
 .DESCRIPTION
-    Removes a HyperFocus task by the given index and exports the changes to the default file.
+    Removes a HyperFocus task by the given index or removes all completed tasks if the -RemoveCompleted switch is used, and exports the changes to the default file.
 .PARAMETER index
-    The index of the task to remove.
+    The index of the task to remove. This parameter is optional if the -RemoveCompleted switch is used, but one of them must be provided.
+.PARAMETER RemoveCompleted
+    A switch that, when used, removes all tasks with the status 'Completed'. This switch is optional if the index parameter is provided, but one of them must be provided.
 #>
 function Remove-HyperFocusTask {
-    param([int]$index)
-    if ($index -ge 0 -and $index -lt $script:hyperFocusTasks.Count) {
-        $script:hyperFocusTasks.RemoveAt($index)
-    } else {
-        Write-Host "Invalid index. Please provide an index between 0 and $($script:hyperFocusTasks.Count - 1)."
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $false, Position = 0)]
+        [ValidateScript({
+                if ($_ -lt 0 -or $_ -ge $script:hyperFocusTasks.Count) {
+                    throw "Invalid index. Please provide an index between 0 and $($script:hyperFocusTasks.Count - 1)."
+                }
+                $true
+            })]
+        [int]$index,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$RemoveCompleted
+    )
+
+    if (!$PSBoundParameters.ContainsKey('index') -and !$RemoveCompleted) {
+        Write-Host "Please provide an index or use -RemoveCompleted."
+        return
     }
-    Export-HyperFocusTasks $script:defaultFilePath 
+
+    if ($RemoveCompleted) {
+        $script:hyperFocusTasks = $script:hyperFocusTasks | Where-Object { $_.Status -ne 'completed' }
+    }
+    else {
+        $script:hyperFocusTasks.RemoveAt($index)
+    }
+
+    Export-HyperFocusTasks $script:defaultFilePath
 }
+
 
 <#
 .SYNOPSIS
@@ -133,7 +150,7 @@ function Get-HyperFocusTasks {
     }
 
     if ($sortByPriority -eq 'true') {
-        $result = $result | Sort-Object { switch ($_.Priority) { 'High' {1} 'Medium' {2} 'Low' {3} } }
+        $result = $result | Sort-Object { switch ($_.Priority) { 'High' { 1 } 'Medium' { 2 } 'Low' { 3 } } }
     }
 
     for ($i = 0; $i -lt $result.Count; $i++) {
@@ -197,10 +214,10 @@ function Import-HyperFocusTasks {
     $content | ForEach-Object {
         $item, $priority, $dueDate, $status = $_.Split(',').Trim()
         $hyperfocus = New-Object PSObject -Property @{
-            'Item' = $item
+            'Item'     = $item
             'Priority' = $priority
-            'DueDate' = $dueDate
-            'Status' = $status
+            'DueDate'  = $dueDate
+            'Status'   = $status
         }
         $script:hyperFocusTasks.Add($hyperfocus) | Out-Null
     }
@@ -216,26 +233,32 @@ function Import-HyperFocusTasks {
 .PARAMETER status
     The new status for the task.
 #>
+# Function to update the status of a HyperFocus task
+# Function to update the status of a HyperFocus task
 function Update-HyperFocusStatus {
     param(
+        [ValidateScript({
+                if ($_ -ge 0 -and $_ -lt $script:hyperFocusTasks.Count) {
+                    $true
+                }
+                else {
+                    throw "Invalid index. Please provide an index between 0 and $($script:hyperFocusTasks.Count - 1)."
+                }
+            })]
         [int]$index,
+        [ValidateSet('Not Started', 'In Progress', 'On Hold', 'Completed', 'Cancelled')]
         [string]$status
     )
-
-    $validStatuses = 'Not Started', 'In Progress', 'On Hold', 'Completed', 'Cancelled'
-
-    if ($validStatuses -notcontains $status) {
-        Write-Host "Invalid status. Please choose one of the following: $($validStatuses -join ', ')"
-        return
-    }
 
     if ($index -ge 0 -and $index -lt $script:hyperFocusTasks.Count) {
         $script:hyperFocusTasks[$index].Status = $status
         Export-HyperFocusTasks $script:defaultFilePath 
-    } else {
+    }
+    else {
         Write-Host "Invalid index. Please provide an index between 0 and $($script:hyperFocusTasks.Count - 1)."
     }
 }
+
 
 # Default file path for the to-do list
 $script:defaultFilePath = Join-Path $env:USERPROFILE 'hyperfocus_list.txt'
@@ -246,7 +269,8 @@ $script:hyperFocusTasks = New-Object System.Collections.ArrayList
 # Check if the default file path exists
 if (Test-Path -Path $script:defaultFilePath) {
     Import-HyperFocusTasks $script:defaultFilePath
-} else {
+}
+else {
     $script:hyperFocusTasks = New-Object System.Collections.ArrayList
 }
 
