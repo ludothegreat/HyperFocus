@@ -48,3 +48,6 @@ Please read CONTRIBUTING.md for details on how to contribute to this project.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE.md file for details.
+
+## Logo Font
+OpenDyslexic font is an open sourced font created to increase readability for readers with dyslexia. More can be found at opendyslexic.org
