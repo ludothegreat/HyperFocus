@@ -30,3 +30,7 @@
 
 ### 10. Command Autocompletion
 - Implement command-line autocompletion for functions.
+
+### 11. Online tasklist repository option
+- Github?
+- Add, Remove, List, switch, etc.
