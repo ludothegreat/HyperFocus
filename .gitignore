@@ -1,5 +1,6 @@
 # Ignore system and temporary files
 *.tmp
 *.bak
+*.cer
 .DS_Store
 Thumbs.db
