@@ -264,13 +264,35 @@ if (Test-Path -Path $script:defaultFilePath) {
     Shows the available HyperFocus commands and their usage.
 #>
 function Show-HyperFocusHelp {
-    "Available commands:"
-    "Add-HyperFocusTask '<item>' [priority] [dueDate] [status] - Add a HyperFocus task (enclose item in quotes). Priority can be High, Medium, or Low."
-    "Get-HyperFocusTasks [sortByPriority] [filterByPriority] [filterByStatus] - Show all HyperFocus tasks. Sort by priority or filter by priority (High, Medium, Low), and status."
-    "Remove-HyperFocusTask <index> - Remove a HyperFocus task by index."
-    "Update-HyperFocusStatus <index> <status> - Update the status of a HyperFocus task by index. Status can be Not Started, In Progress, On Hold, Completed, or Cancelled."
-    "Clear-HyperFocusTasks - Clear all HyperFocus tasks."
-    "Export-HyperFocusTasks '<filename>' - Export HyperFocus tasks to a file."
-    "Import-HyperFocusTasks '<filename>' - Import HyperFocus tasks from a file."
-    "Show-HyperFocusHelp - Display this help menu."
+    Write-Host "Available commands:"
+    Write-Host "`n`r" # Newline for better visibility
+    
+    Write-Host "`t- Add-HyperFocusTask '<item>' [priority] [dueDate] [status]"
+    Write-Host "`t  Add a single HyperFocus task. Priority can be High, Medium, or Low."
+
+    Write-Host "`t- Add-HyperFocusTasks '<items>' [priority] [dueDate] [status]"
+    Write-Host "`t  Add multiple HyperFocus tasks. Priority can be High, Medium, or Low."
+    
+    Write-Host "`t- Get-HyperFocusTasks [sortByPriority] [filterByPriority] [filterByStatus]"
+    Write-Host "`t  Show all HyperFocus tasks. Sort by priority or filter by priority (High, Medium, Low), and status."
+    
+    Write-Host "`t- Remove-HyperFocusTask <index>"
+    Write-Host "`t  Remove a HyperFocus task by index."
+    
+    Write-Host "`t- Update-HyperFocusStatus <index> <status>"
+    Write-Host "`t  Update the status of a HyperFocus task by index. Status can be Not Started, In Progress, On Hold, Completed, or Cancelled."
+    
+    Write-Host "`t- Clear-HyperFocusTasks"
+    Write-Host "`t  Clear all HyperFocus tasks."
+    
+    Write-Host "`t- Export-HyperFocusTasks '<filename>'"
+    Write-Host "`t  Export HyperFocus tasks to a file."
+    
+    Write-Host "`t- Import-HyperFocusTasks '<filename>'"
+    Write-Host "`t  Import HyperFocus tasks from a file."
+    
+    Write-Host "`t- Show-HyperFocusHelp"
+    Write-Host "`t  Display this help menu."
+
+    Write-Host "`n`r" # Newline for better visibility
 }
