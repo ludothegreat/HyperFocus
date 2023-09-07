@@ -1,3 +1,50 @@
-Task1, High, 2023-09-01, Not Started
-Task2, Medium, 2023-09-15, In Progress
-Task3, Low, , Completed
+Prepare for job interview, High, 2023-09-25, In Progress
+Walk the dog, Low, 2023-09-07, Completed
+Submit project proposal, High, 2023-09-22, Not Started
+Read cybersecurity article, Medium, 2023-09-12, Not Started
+Pay utility bills, Medium, 2023-09-10, In Progress
+Organize photos, Low, 2023-09-30, Not Started
+Watch training video, Medium, 2023-09-15, Completed
+Backup computer files, High, 2023-09-20, Not Started
+Plan family vacation, Low, 2023-10-01, In Progress
+Perform system updates, Medium, 2023-09-17, Completed
+Finish PowerPoint presentation, High, 2023-09-20, In Progress
+Grocery shopping, Low, 2023-09-10, Not Started
+Email client, Medium, 2023-09-08, Completed
+Attend team meeting, High, 2023-09-09, In Progress
+Update resume, Low, 2023-09-15, Not Started
+Clean the garage, Low, 2023-09-18, Not Started
+Schedule doctor appointment, High, 2023-09-10, Completed
+Write weekly report, Medium, 2023-09-09, In Progress
+Learn new programming language, Low, 2023-10-01, Not Started
+Order office supplies, Low, 2023-09-15, Completed
+Return library books, Low, 2023-09-12, In Progress
+Review budget, Medium, 2023-09-20, Not Started
+Finish reading book, Low, 2023-09-30, In Progress
+Fix broken chair, Low, 2023-09-25, Not Started
+Call parents, Medium, 2023-09-07, Completed
+Social media detox, Low, 2023-09-30, Not Started
+Renew car insurance, High, 2023-09-22, In Progress
+Write thank-you cards, Low, 2023-09-15, Not Started
+Submit tax documents, High, 2023-09-18, Completed
+Buy birthday gift, Medium, 2023-09-10, In Progress
+Study for exam, High, 2023-09-14, Not Started
+Watch favorite show, Low, 2023-09-11, Completed
+Buy groceries, Medium, 2023-09-08, In Progress
+Exercise, Medium, 2023-09-07, Completed
+Meal prep for the week, Medium, 2023-09-12, Not Started
+Replace light bulbs, Low, 2023-09-20, Completed
+Water plants, Low, 2023-09-09, In Progress
+Update LinkedIn profile, Low, 2023-09-16, Not Started
+Book flight tickets, High, 2023-09-18, Completed
+Install antivirus software, High, 2023-09-10, In Progress
+Attend networking event, Medium, 2023-09-21, Not Started
+Finish online course, High, 2023-09-30, In Progress
+Write blog post, Low, 2023-09-25, Not Started
+Visit dentist, High, 2023-09-15, Completed
+Set up new router, Medium, 2023-09-18, In Progress
+Clean up desktop, Low, 2023-09-20, Completed
+Renew gym membership, Medium, 2023-09-22, Not Started
+Update emergency contact list, High, 2023-09-19, Completed
+Sort emails, Low, 2023-09-17, In Progress
+Assemble new furniture, Medium, 2023-09-24, Not Started

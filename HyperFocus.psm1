@@ -1,92 +1,87 @@
-# Default file path for the to-do list
-$script:defaultFilePath = Join-Path $env:USERPROFILE 'hyperfocus_list.txt'
-
-# Initialize the hyperFocusTasks list as an empty ArrayList if the default file does not exist
-$script:hyperFocusTasks = if (Test-Path -Path $script:defaultFilePath) {
-    Import-HyperFocusTasks $script:defaultFilePath
-} else {
-    New-Object System.Collections.ArrayList
+# Initialize the hyperFocusTasks list
+function Initialize-HyperFocus {
+    $script:defaultFilePath = Join-Path $env:USERPROFILE 'hyperfocus_list.txt'
+    if (Test-Path -Path $script:defaultFilePath) {    
+        Import-HyperFocusTasks -Path $script:defaultFilePath
+    } else {
+        $script:hyperFocusTasks = New-Object System.Collections.ArrayList
+    }
 }
+
+# Import-HyperFocusTasks function
+function Import-HyperFocusTasks {
+    param([string]$Path)
+    if (Test-Path -Path $Path) {
+        $Content = Get-Content -Path $Path
+        $Content = @($Content)
+        $script:hyperFocusTasks = New-Object System.Collections.ArrayList
+        $Content | ForEach-Object {
+            $Item, $Priority, $DueDate, $Status = $_.Split(',').Trim()
+            $Hyperfocus = New-Object PSObject -Property @{
+                'Item' = $Item
+                'Priority' = $Priority
+                'DueDate' = $DueDate
+                'Status' = $Status
+            }
+            $script:hyperFocusTasks.Add($Hyperfocus) | Out-Null
+        }
+    } else {
+        Write-Host "File not found. Initializing an empty task list."
+        $script:hyperFocusTasks = New-Object System.Collections.ArrayList
+    }
+}
+
+# Call Initialize-HyperFocus when the module is imported
+Initialize-HyperFocus
 
 <#
 .SYNOPSIS
-    Adds a HyperFocus task.
+    Adds one or multiple HyperFocus tasks.
 .DESCRIPTION
-    Creates and adds a HyperFocus task with the provided details and exports it to the default file.
-.PARAMETER item
-    The description of the task.
-.PARAMETER priority
-    The priority of the task. Default is 'Medium'.
-.PARAMETER dueDate
-    The due date for the task. Optional.
-.PARAMETER status
-    The status of the task. Default is 'Not Started'.
+    Creates and adds one or multiple HyperFocus tasks with the provided details and exports them to the default file.
+.PARAMETER -Items
+    The description(s) of the task(s). Can be a single string or an array of strings.
+.PARAMETER -Priority
+    The priority of the task(s). Default is 'Medium'.
+.PARAMETER -DueDate
+    The due date for the task(s). Default is null (no due date).
+.PARAMETER -Status
+    The status of the task(s). Default is 'Not Started'.
 #>
 function Add-HyperFocusTask {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
-        [string]$item,
+        [Parameter(Mandatory=$false, ValueFromRemainingArguments=$true)]
+        [string[]]$Items = @('Default Task'),
 
         [ValidateSet('High', 'Medium', 'Low')]
-        [string]$priority = 'Medium', 
+        [string]$Priority = 'Medium',
 
-        [string]$dueDate = $null,      
+        [string]$DueDate = $null,      
 
         [ValidateSet('Not Started', 'In Progress', 'On Hold', 'Completed', 'Cancelled')]
-        [string]$status = 'Not Started' 
+        [string]$Status = 'Not Started' 
     )
-
-    $hyperfocus = New-Object PSObject -Property @{
-        'Item' = $item
-        'Priority' = $priority
-        'DueDate' = $dueDate
-        'Status' = $status
+    
+    # Ensure the hyperFocusTasks array exists
+    if ($null -eq $script:hyperFocusTasks) {
+        $script:hyperFocusTasks = New-Object System.Collections.ArrayList
     }
-    $script:hyperFocusTasks.Add($hyperfocus) | Out-Null
-    Export-HyperFocusTasks $script:defaultFilePath 
-}
 
-<#
-.SYNOPSIS
-    Adds multiple HyperFocus tasks.
-.DESCRIPTION
-    Creates and adds multiple HyperFocus tasks with the provided details and exports them to the default file.
-.PARAMETER items
-    An array of descriptions for the tasks.
-.PARAMETER priority
-    The priority of the tasks. Default is 'Medium'.
-.PARAMETER dueDate
-    The due date for the tasks. Optional.
-.PARAMETER status
-    The status of the tasks. Default is 'Not Started'.
-#>
-function Add-HyperFocusTasks {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true)]
-        [string[]]$items,
-
-        [ValidateSet('High', 'Medium', 'Low')]
-        [string]$priority = 'Medium',
-
-        [string]$dueDate = $null,      
-
-        [ValidateSet('Not Started', 'In Progress', 'On Hold', 'Completed', 'Cancelled')]
-        [string]$status = 'Not Started' 
-    )
-
-    # Create and add HyperFocus tasks for each item
-    $items | ForEach-Object {
+    # Loop through each item to create and add HyperFocus tasks
+    $Items | ForEach-Object {
         $hyperfocus = New-Object PSObject -Property @{
             'Item' = $_
-            'Priority' = $priority
-            'DueDate' = $dueDate
-            'Status' = $status
+            'Priority' = $Priority
+            'DueDate' = $DueDate
+            'Status' = $Status
         }
+
         $script:hyperFocusTasks.Add($hyperfocus) | Out-Null
     }
-    Export-HyperFocusTasks $script:defaultFilePath 
+
+    # Export the updated tasks list to file
+    Export-HyperFocusTasks -Path $script:defaultFilePath
 }
 
 <#
@@ -94,17 +89,17 @@ function Add-HyperFocusTasks {
     Removes a HyperFocus task by index.
 .DESCRIPTION
     Removes a HyperFocus task by the given index and exports the changes to the default file.
-.PARAMETER index
+.PARAMETER -Index
     The index of the task to remove.
 #>
 function Remove-HyperFocusTask {
-    param([int]$index)
-    if ($index -ge 0 -and $index -lt $script:hyperFocusTasks.Count) {
-        $script:hyperFocusTasks.RemoveAt($index)
+    param([int]$Index)
+    if ($Index -ge 0 -and $Index -lt $script:hyperFocusTasks.Count) {
+        $script:hyperFocusTasks.RemoveAt($Index)
     } else {
         Write-Host "Invalid index. Please provide an index between 0 and $($script:hyperFocusTasks.Count - 1)."
     }
-    Export-HyperFocusTasks $script:defaultFilePath 
+    Export-HyperFocusTasks -Path $script:defaultFilePath 
 }
 
 <#
@@ -112,42 +107,42 @@ function Remove-HyperFocusTask {
     Gets HyperFocus tasks with optional sorting and filtering.
 .DESCRIPTION
     Retrieves HyperFocus tasks and allows sorting by priority and filtering by priority or status.
-.PARAMETER sortByPriority
+.PARAMETER -SortByPriority
     Sort tasks by priority if set to 'true'.
-.PARAMETER filterByPriority
+.PARAMETER -FilterByPriority
     Filter tasks by a specific priority.
-.PARAMETER filterByStatus
+.PARAMETER -FilterByStatus
     Filter tasks by a specific status.
 #>
 function Get-HyperFocusTasks {
     param(
-        [string]$sortByPriority,
-        [string]$filterByPriority,
-        [string]$filterByStatus
+        [string]$SortByPriority,
+        [string]$FilterByPriority,
+        [string]$FilterByStatus
     )
     
-    $result = $script:hyperFocusTasks
+    $Result = $script:hyperFocusTasks
 
-    if ($filterByPriority) {
-        $result = $script:hyperFocusTasks | Where-Object { $_.Priority -eq $filterByPriority }
+    if ($FilterByPriority) {
+        $Result = $script:hyperFocusTasks | Where-Object { $_.Priority -eq $FilterByPriority }
     }
 
-    if ($sortByPriority -eq 'true') {
-        $result = $result | Sort-Object { switch ($_.Priority) { 'High' {1} 'Medium' {2} 'Low' {3} } }
+    if ($SortByPriority -eq 'true') {
+        $Result = $Result | Sort-Object { switch ($_.Priority) { 'High' {1} 'Medium' {2} 'Low' {3} } }
     }
 
     Write-Host "HyperFocus Tasks:"
     Write-Host "`n`r" # Newline for better visibility
 
-    for ($i = 0; $i -lt $result.Count; $i++) {
-        $color = switch ($result[$i].Priority) {
+    for ($i = 0; $i -lt $Result.Count; $i++) {
+        $Color = switch ($Result[$i].Priority) {
             'High' { 'Red' }
             'Medium' { 'Yellow' }
             'Low' { 'Green' }
             default { 'White' }
         }
 
-        $statusSymbol = switch ($result[$i].Status) {
+        $StatusSymbol = switch ($Result[$i].Status) {
             'Completed' { '✓' }
             'In Progress' { '⚙️' }
             'Not Started' { '❗' }
@@ -155,12 +150,11 @@ function Get-HyperFocusTasks {
             default { '' }
         }
 
-        Write-Host "`t$($i): $statusSymbol $($result[$i].Item) - Priority: $($result[$i].Priority) - Due Date: $($result[$i].DueDate) - Status: $($result[$i].Status)" -ForegroundColor $color
+        Write-Host "`t$($i): $StatusSymbol $($Result[$i].Item) - Priority: $($Result[$i].Priority) - Due Date: $($Result[$i].DueDate) - Status: $($Result[$i].Status)" -ForegroundColor $Color
     }
 
     Write-Host "`n`r" # Newline for better visibility
 }
-
 
 <#
 .SYNOPSIS
@@ -176,85 +170,66 @@ function Clear-HyperFocusTasks {
 .SYNOPSIS
     Exports HyperFocus tasks to a file.
 .DESCRIPTION
-    Exports all HyperFocus tasks to the specified filename.
-.PARAMETER filename
-    The name of the file to export to.
+    Exports the current list of HyperFocus tasks to the specified file path. If the file exists, it will be overwritten.
+.PARAMETER -Path
+    The path to the file to export to. If the file already exists, it will be overwritten.
+.EXAMPLE
+    Export-HyperFocusTasks -Path "C:\Users\JohnDoe\Documents\hyperfocus_list.txt"
+    Exports the current list of HyperFocus tasks to "C:\Users\JohnDoe\Documents\hyperfocus_list.txt".
 #>
 function Export-HyperFocusTasks {
-    param([string]$filename)
-    Remove-Item -Path $filename -ErrorAction Ignore 
-    $script:hyperFocusTasks | ForEach-Object {
-        "$($_.Item), $($_.Priority), $($_.DueDate), $($_.Status)" | Out-File -FilePath $filename -Append
-    }
-}
-
-<#
-.SYNOPSIS
-    Imports HyperFocus tasks from a file.
-.DESCRIPTION
-    Imports HyperFocus tasks from the specified filename.
-.PARAMETER filename
-    The name of the file to import from.
-#>
-function Import-HyperFocusTasks {
-    param([string]$filename)
-    $content = Get-Content -Path $filename
-    $content = @($content) 
-    $script:hyperFocusTasks = New-Object System.Collections.ArrayList
-    $content | ForEach-Object {
-        $item, $priority, $dueDate, $status = $_.Split(',').Trim()
-        $hyperfocus = New-Object PSObject -Property @{
-            'Item' = $item
-            'Priority' = $priority
-            'DueDate' = $dueDate
-            'Status' = $status
-        }
-        $script:hyperFocusTasks.Add($hyperfocus) | Out-Null
-    }
-}
-
-<#
-.SYNOPSIS
-    Updates the status of a HyperFocus task by index.
-.DESCRIPTION
-    Updates the status of a HyperFocus task by the given index and exports the changes to the default file.
-.PARAMETER index
-    The index of the task to update.
-.PARAMETER status
-    The new status for the task.
-#>
-function Update-HyperFocusStatus {
     param(
-        [int]$index,
-        [string]$status
+        [Parameter(Mandatory=$true)]
+        [string]$Path
     )
 
-    $validStatuses = 'Not Started', 'In Progress', 'On Hold', 'Completed', 'Cancelled'
+    try {
+        # Remove existing file to start fresh; ignore errors if file doesn't exist
+        Remove-Item -Path $Path -ErrorAction Ignore
 
-    if ($validStatuses -notcontains $status) {
-        Write-Host "Invalid status. Please choose one of the following: $($validStatuses -join ', ')"
-        return
+        # Loop through each task and append it to the file
+        $script:hyperFocusTasks | ForEach-Object {
+            $Line = "$($_.Item), $($_.Priority), $($_.DueDate), $($_.Status)"
+            $Line | Out-File -FilePath $Path -Append
+        }
+    } catch {
+        Write-Host "Failed to export tasks: $_"
     }
+}
 
-    if ($index -ge 0 -and $index -lt $script:hyperFocusTasks.Count) {
-        $script:hyperFocusTasks[$index].Status = $status
-        Export-HyperFocusTasks $script:defaultFilePath 
+
+<#
+.SYNOPSIS
+    Updates a HyperFocus task by index.
+.DESCRIPTION
+    Updates a specific property of a HyperFocus task by the given index and exports the changes to the default file.
+.PARAMETER -Index
+    The index of the task to update.
+.PARAMETER -Property
+    The property to update ('Item', 'Priority', 'DueDate', 'Status').
+.PARAMETER -Value
+    The new value for the property.
+.EXAMPLE
+    Update-HyperFocusTask -Index 0 -Property Status -Value "In Progress"
+    Updates the status of the task at index 0 to "In Progress."
+.EXAMPLE
+    Update-HyperFocusTask -Index 1 -Property Priority -Value High
+    Updates the priority of the task at index 1 to "High."
+#>
+function Update-HyperFocusTask {
+    param(
+        [int]$Index,
+        [ValidateSet('Item', 'Priority', 'DueDate', 'Status')]
+        [string]$Property,
+        [string]$Value
+    )
+
+    if ($Index -ge 0 -and $Index -lt $script:hyperFocusTasks.Count) {
+        $script:hyperFocusTasks[$Index].$Property = $Value
+        Export-HyperFocusTasks -Path $script:defaultFilePath 
     } else {
         Write-Host "Invalid index. Please provide an index between 0 and $($script:hyperFocusTasks.Count - 1)."
     }
-}
-
-# Default file path for the to-do list
-$script:defaultFilePath = Join-Path $env:USERPROFILE 'hyperfocus_list.txt'
-
-# Initialize the to-do list as an empty ArrayList if the default file does not exist
-$script:hyperFocusTasks = New-Object System.Collections.ArrayList
-
-# Check if the default file path exists
-if (Test-Path -Path $script:defaultFilePath) {
-    Import-HyperFocusTasks $script:defaultFilePath
-} else {
-    $script:hyperFocusTasks = New-Object System.Collections.ArrayList
 }
 
 <#
@@ -262,33 +237,60 @@ if (Test-Path -Path $script:defaultFilePath) {
     Displays available HyperFocus commands.
 .DESCRIPTION
     Shows the available HyperFocus commands and their usage.
+.EXAMPLE
+    Show-HyperFocusHelp
+    Display this help menu.
+.EXAMPLE
+    Add-HyperFocusTask -Item '<item>' [-Priority] [-DueDate] [-Status]
+    Add a single HyperFocus task. Priority can be High, Medium, or Low.
+.EXAMPLE
+    Add-HyperFocusTasks -Items '<items>' [-Priority] [-DueDate] [-Status]
+    Add multiple HyperFocus tasks. Priority can be High, Medium, or Low.
+.EXAMPLE
+    Get-HyperFocusTasks [-SortByPriority] [-FilterByPriority] [-FilterByStatus]
+    Show all HyperFocus tasks. Sort by priority or filter by priority (High, Medium, Low), and status.
+.EXAMPLE
+    Remove-HyperFocusTask -Index <index>
+    Remove a HyperFocus task by index.
+.EXAMPLE
+    Update-HyperFocusTask -Index <index> -Property <property> -Value <value>
+    Update a property of a HyperFocus task by index. Property can be 'Item', 'Priority', 'DueDate', 'Status'.
+.EXAMPLE
+    Clear-HyperFocusTasks
+    Clear all HyperFocus tasks.
+.EXAMPLE
+    Export-HyperFocusTasks -Path '<filename>'
+    Export HyperFocus tasks to a file.
+.EXAMPLE
+    Import-HyperFocusTasks -Path '<filename>'
+    Import HyperFocus tasks from a file.
 #>
 function Show-HyperFocusHelp {
     Write-Host "Available commands:"
     Write-Host "`n`r" # Newline for better visibility
     
-    Write-Host "`t- Add-HyperFocusTask '<item>' [priority] [dueDate] [status]"
+    Write-Host "`t- Add-HyperFocusTask -Item '<item>' [-Priority] [-DueDate] [-Status]"
     Write-Host "`t  Add a single HyperFocus task. Priority can be High, Medium, or Low."
-
-    Write-Host "`t- Add-HyperFocusTasks '<items>' [priority] [dueDate] [status]"
+    
+    Write-Host "`t- Add-HyperFocusTasks -Items '<items>' [-Priority] [-DueDate] [-Status]"
     Write-Host "`t  Add multiple HyperFocus tasks. Priority can be High, Medium, or Low."
     
-    Write-Host "`t- Get-HyperFocusTasks [sortByPriority] [filterByPriority] [filterByStatus]"
+    Write-Host "`t- Get-HyperFocusTasks [-SortByPriority] [-FilterByPriority] [-FilterByStatus]"
     Write-Host "`t  Show all HyperFocus tasks. Sort by priority or filter by priority (High, Medium, Low), and status."
     
-    Write-Host "`t- Remove-HyperFocusTask <index>"
+    Write-Host "`t- Remove-HyperFocusTask -Index <index>"
     Write-Host "`t  Remove a HyperFocus task by index."
     
-    Write-Host "`t- Update-HyperFocusStatus <index> <status>"
-    Write-Host "`t  Update the status of a HyperFocus task by index. Status can be Not Started, In Progress, On Hold, Completed, or Cancelled."
+    Write-Host "`t- Update-HyperFocusTask -Index <index> -Property <property> -Value <value>"
+    Write-Host "`t  Update a property of a HyperFocus task by index. Property can be 'Item', 'Priority', 'DueDate', 'Status'."
     
     Write-Host "`t- Clear-HyperFocusTasks"
     Write-Host "`t  Clear all HyperFocus tasks."
     
-    Write-Host "`t- Export-HyperFocusTasks '<filename>'"
+    Write-Host "`t- Export-HyperFocusTasks -Path '<filename>'"
     Write-Host "`t  Export HyperFocus tasks to a file."
     
-    Write-Host "`t- Import-HyperFocusTasks '<filename>'"
+    Write-Host "`t- Import-HyperFocusTasks -Path '<filename>'"
     Write-Host "`t  Import HyperFocus tasks from a file."
     
     Write-Host "`t- Show-HyperFocusHelp"

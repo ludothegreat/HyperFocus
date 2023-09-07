@@ -1,0 +1,2 @@
+filterbystatus not filtering by status
+clear-HyperFocusTasks looks to clear them, but doesn't actually save the list if a new tasks is not added before the powershell session is closed. resulting in all of the tasks showing up the next time the module is loaded.
